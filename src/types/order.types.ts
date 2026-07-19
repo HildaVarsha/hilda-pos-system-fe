@@ -4,6 +4,8 @@ import type { RestaurantTable } from './table.types';
 export type OrderStatus =
   'PENDING' | 'ACCEPTED' | 'COOKING' | 'READY' | 'SERVED' | 'COMPLETED' | 'CANCELLED';
 
+export type OrderType = 'DINE_IN' | 'PARCEL';
+
 export type PaymentMethod = 'CASH' | 'CARD' | 'UPI';
 
 export interface OrderItem {
@@ -27,12 +29,15 @@ export interface Order {
   id: string;
   orderNumber: number;
   status: OrderStatus;
+  orderType: OrderType;
+  customerName: string | null;
   notes: string | null;
   subtotal: string;
   taxAmount: string;
   grandTotal: string;
-  tableId: string;
-  table: RestaurantTable;
+  /** Null for PARCEL orders — they never occupy a table. */
+  tableId: string | null;
+  table: RestaurantTable | null;
   createdById: string;
   createdBy: { id: string; name: string; email: string };
   items: OrderItem[];
@@ -54,7 +59,11 @@ export interface CreateOrderItemInput {
 }
 
 export interface CreateOrderInput {
-  tableId: string;
+  orderType: OrderType;
+  /** Required for DINE_IN, omitted for PARCEL. */
+  tableId?: string;
+  /** Required for PARCEL, optional for DINE_IN. */
+  customerName?: string;
   notes?: string;
   items: CreateOrderItemInput[];
 }

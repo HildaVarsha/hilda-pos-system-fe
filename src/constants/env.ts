@@ -16,7 +16,7 @@ export const env = {
   apiBaseUrl: requireEnv('VITE_API_BASE_URL'),
   socketUrl: requireEnv('VITE_SOCKET_URL'),
   appName: import.meta.env.VITE_APP_NAME || 'Restaurant POS',
-  taxRatePercent: Number(import.meta.env.VITE_TAX_RATE_PERCENT ?? 5),
+  taxRatePercent: Number(import.meta.env.VITE_TAX_RATE_PERCENT ?? 20),
   restaurantOpenHour: Number(import.meta.env.VITE_RESTAURANT_OPEN_HOUR ?? 12),
   restaurantCloseHour: Number(import.meta.env.VITE_RESTAURANT_CLOSE_HOUR ?? 23),
   appVersion: typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '0.0.0',

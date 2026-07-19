@@ -1,18 +1,30 @@
+import { useState } from 'react';
 import { Receipt } from 'lucide-react';
 import { Badge, Button, EmptyState, Skeleton } from '@components/ui';
 import { BillingModal } from '@features/billing';
-import { useState } from 'react';
 import type { Order } from '@/types/order.types';
 
 const STATUS_STEPS: Order['status'][] = ['PENDING', 'ACCEPTED', 'COOKING', 'READY', 'SERVED'];
 
 interface OrderStatusPanelProps {
-  tableNumber: number;
+  /** e.g. "Table 4" for dine-in, or "Parcel · Rahul" for a takeaway order. */
+  label: string;
+  emptyDescription: string;
   order: Order | undefined;
   isLoading: boolean;
 }
 
-export function OrderStatusPanel({ tableNumber, order, isLoading }: OrderStatusPanelProps) {
+/**
+ * Shown in the right-hand panel of the POS screen instead of the cart
+ * whenever an order already in progress is selected — used for both an
+ * occupied dine-in table and an in-progress parcel order.
+ */
+export function OrderStatusPanel({
+  label,
+  emptyDescription,
+  order,
+  isLoading,
+}: OrderStatusPanelProps) {
   const [billingOrderId, setBillingOrderId] = useState<string | null>(null);
 
   if (isLoading) {
@@ -27,10 +39,7 @@ export function OrderStatusPanel({ tableNumber, order, isLoading }: OrderStatusP
   if (!order) {
     return (
       <div className="flex h-full w-80 shrink-0 flex-col border-l border-border pl-4">
-        <EmptyState
-          title="No active order"
-          description={`Table ${tableNumber} has no order in progress`}
-        />
+        <EmptyState title="No active order" description={emptyDescription} />
       </div>
     );
   }
@@ -44,7 +53,7 @@ export function OrderStatusPanel({ tableNumber, order, isLoading }: OrderStatusP
           Order In Progress
         </p>
         <p className="text-sm font-semibold text-foreground">
-          Table {tableNumber} · Order #{order.orderNumber}
+          {label} · Order #{order.orderNumber}
         </p>
       </div>
 

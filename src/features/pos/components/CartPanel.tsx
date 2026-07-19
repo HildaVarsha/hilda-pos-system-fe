@@ -8,18 +8,27 @@ import { env } from '@constants/env';
 export function CartPanel() {
   const { data: tables = [] } = useTables();
   const {
+    orderType,
     selectedTableId,
+    customerName,
     lines,
     orderNotes,
     incrementQuantity,
     decrementQuantity,
     removeItem,
+    setCustomerName,
     setOrderNotes,
     clearCart,
   } = usePosCartStore();
   const createOrderMutation = useCreateOrder();
 
+  const isParcel = orderType === 'PARCEL';
   const selectedTable = tables.find((t) => t.id === selectedTableId);
+
+  // A parcel order just needs items + a customer name; a dine-in order
+  // needs items + a selected table.
+  const hasDestination = isParcel ? customerName.trim().length > 0 : Boolean(selectedTableId);
+  const canSend = hasDestination && lines.length > 0;
 
   const subtotal = lines.reduce(
     (sum, line) => sum + Number(line.menuItem.price) * line.quantity,
@@ -29,10 +38,12 @@ export function CartPanel() {
   const grandTotal = subtotal + taxAmount;
 
   const handleSendToKitchen = () => {
-    if (!selectedTableId || lines.length === 0) return;
+    if (!canSend) return;
     createOrderMutation.mutate(
       {
-        tableId: selectedTableId,
+        orderType,
+        tableId: isParcel ? undefined : (selectedTableId as string),
+        customerName: isParcel ? customerName.trim() : undefined,
         notes: orderNotes || undefined,
         items: lines.map((line) => ({
           menuItemId: line.menuItem.id,
@@ -51,12 +62,27 @@ export function CartPanel() {
           Current Order
         </p>
         <p className="text-sm font-semibold text-foreground">
-          {selectedTable ? `Table ${selectedTable.number}` : 'No table selected'}
+          {isParcel
+            ? customerName.trim()
+              ? `Parcel · ${customerName.trim()}`
+              : 'Parcel Order'
+            : selectedTable
+              ? `Table ${selectedTable.number}`
+              : 'No table selected'}
         </p>
       </div>
 
+      {isParcel && (
+        <Input
+          placeholder="Customer name"
+          value={customerName}
+          onChange={(e) => setCustomerName(e.target.value)}
+          containerClassName="mb-3"
+        />
+      )}
+
       <div className="scrollbar-thin flex-1 overflow-y-auto">
-        {!selectedTableId ? (
+        {!isParcel && !selectedTableId ? (
           <EmptyState
             title="Select a table"
             description="Pick an available table from the left to start an order"
@@ -114,7 +140,7 @@ export function CartPanel() {
         )}
       </div>
 
-      {selectedTableId && lines.length > 0 && (
+      {lines.length > 0 && (isParcel || selectedTableId) && (
         <div className="mt-3 flex flex-col gap-3 border-t border-border pt-3">
           <Input
             placeholder="Special instructions (optional)"
@@ -137,10 +163,15 @@ export function CartPanel() {
             </div>
           </div>
 
+          {isParcel && !customerName.trim() && (
+            <p className="text-xs text-amber-500">Add a customer name before sending to kitchen.</p>
+          )}
+
           <Button
             leftIcon={<Send className="h-4 w-4" />}
             onClick={handleSendToKitchen}
             isLoading={createOrderMutation.isPending}
+            disabled={!canSend}
           >
             Send to Kitchen
           </Button>

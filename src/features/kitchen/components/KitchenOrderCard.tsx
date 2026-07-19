@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Clock } from 'lucide-react';
+import { Clock, ShoppingBag } from 'lucide-react';
 import { cn } from '@utils/cn';
 import { Button, Badge } from '@components/ui';
 import { useUpdateKitchenStatus } from '../hooks/useKitchen';
@@ -52,7 +52,16 @@ export function KitchenOrderCard({ order }: KitchenOrderCardProps) {
     >
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-lg font-semibold text-foreground">Table {order.table.number}</p>
+          <p className="flex items-center gap-1.5 text-lg font-semibold text-foreground">
+            {order.orderType === 'PARCEL' ? (
+              <>
+                <ShoppingBag className="h-4 w-4 shrink-0" aria-hidden="true" />
+                {order.customerName ?? 'Parcel'}
+              </>
+            ) : (
+              `Table ${order.table?.number}`
+            )}
+          </p>
           <p className="text-xs text-foreground/50">Order #{order.orderNumber}</p>
         </div>
         <Badge

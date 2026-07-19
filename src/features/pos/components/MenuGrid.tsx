@@ -19,10 +19,12 @@ export function MenuGrid() {
     isAvailable: true,
   });
   const addItem = usePosCartStore((state) => state.addItem);
+  const orderType = usePosCartStore((state) => state.orderType);
   const selectedTableId = usePosCartStore((state) => state.selectedTableId);
   const { data: tables = [] } = useTables();
   const selectedTable = tables.find((t) => t.id === selectedTableId);
-  const canAddItems = Boolean(selectedTable && selectedTable.status === 'AVAILABLE');
+  const canAddItems =
+    orderType === 'PARCEL' || Boolean(selectedTable && selectedTable.status === 'AVAILABLE');
 
   return (
     <div className="flex h-full flex-1 flex-col gap-4 overflow-hidden px-4">

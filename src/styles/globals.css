@@ -48,3 +48,46 @@
     @apply rounded-full bg-border;
   }
 }
+
+/**
+ * Printing a bill (see features/billing/components/ReceiptPrintout.tsx):
+ * the receipt is always mounted (off-screen) while the billing modal is
+ * open. On print, everything else is hidden and only the receipt subtree
+ * is shown — regardless of where it sits in the DOM.
+ *
+ * The @page size is set to 80mm-wide thermal receipt paper (the most
+ * common POS printer roll width) instead of the browser's A4/Letter
+ * default — without this, the browser prints a full sheet with the
+ * receipt shrunk into one corner. If your printer uses 58mm rolls
+ * instead, change both `size` and `.printable-receipt`'s `width` below
+ * to `58mm`.
+ */
+@media print {
+  @page {
+    size: 80mm auto;
+    margin: 0;
+  }
+
+  html,
+  body {
+    width: 80mm;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .printable-receipt,
+  .printable-receipt * {
+    visibility: visible;
+  }
+
+  .printable-receipt {
+    position: fixed;
+    inset: 0;
+    width: 80mm;
+    padding: 3mm;
+    font-size: 11px;
+    line-height: 1.35;
+  }
+}

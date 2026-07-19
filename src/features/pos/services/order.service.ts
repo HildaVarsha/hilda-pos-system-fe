@@ -1,12 +1,13 @@
 import { apiClient } from '@api/client';
 import { API_ENDPOINTS } from '@api/endpoints';
 import type { ApiSuccessResponse, PaginatedResult } from '@/types/api.types';
-import type { CreateOrderInput, Order, OrderStatus } from '@/types/order.types';
+import type { CreateOrderInput, Order, OrderStatus, OrderType } from '@/types/order.types';
 
 export interface OrderListParams {
   page?: number;
   pageSize?: number;
   status?: OrderStatus;
+  orderType?: OrderType;
 }
 
 export const orderService = {
